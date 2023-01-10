@@ -1,10 +1,12 @@
 #include <stdio.h>
-#include <unistd.h>
 #include <string.h>
 
 
 int connections[26] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25};
 
+/**
+ * @brief overrides
+ */
 const char overrides[6] = "abcdef";
 
 const char rotors[3][26] =
@@ -15,6 +17,36 @@ const char rotors[3][26] =
 };
 
 const char reflector[26] = "EJMZALYXVBWFCRQUONTSPIKHGD";
+
+/**
+ * @brief Print array of ints.
+ * @param t int ptr.
+ * @param n size of the array.
+ */
+void print_d(int *t, int n)
+{
+	int i = 0;
+	while (i < n) {
+		printf("%d ", t[i]);
+		i++;
+	}
+	printf("\n");
+}
+
+int pass_through_connections(int v)
+{
+	return connections[v];
+}
+
+int pass_through_rotor(int rotorID, int v)
+{
+	return rotors[rotorID][v]-'A';
+}
+
+int pass_through_reflector(int v)
+{
+	return reflector[v]-'A';
+}
 
 int is_in_table(int v, int *t, int s)
 {
@@ -28,45 +60,43 @@ int is_in_table(int v, int *t, int s)
 	return 0;
 }
 
-int text_to_value(char d)
-{
-	return (d - 'A')+'a';
-}
-
-
 int encrypt(int v)
 {
+	v = pass_through_connections(v);
+
 	int i = 0;
-	int prev = v;
 	while (i < 3) {
-		prev = text_to_value(rotors[i][prev - 'a']);
+		v = pass_through_rotor(i, v);
 		i++;
 	}
-	prev = reflector[prev - 'a'];
-	i--;
-	while (i > -1) {
-		prev = text_to_value(rotors[i][prev - 'a']);
+
+	v = pass_through_reflector(v);
+
+	while (i > 0) {
+		v = pass_through_rotor(i, v);
 		i--;
 	}
-	return prev;
+
+	return v + 'a';
 }
 
-void connect_tables(int override)
+void connect_cables(int override)
 {
+	print_d(connections, 26);
 	char inputs[6];
 	int i = 0;
 	if (!override) {
-	while (i < 6) {
-		char c = 0;
-		printf("Lettre %d: ", i);
-		scanf("%s", &c);
-		while ('a' > c || c > 'z' || is_in_table(c, (int *)&inputs[0], 6)) {
-			printf("Valeur incorrect, réentrez-la: :");
-			scanf("%s", &inputs[i]);
+		while (i < 6) {
+			char c = 0;
+			printf("Lettre %d: ", i);
+			scanf("%s", &c);
+			while ('a' > c || c > 'z' || is_in_table(c, (int *)&inputs[0], 6)) {
+				printf("Valeur incorrect, réentrez-la: :");
+				scanf("%s", &inputs[i]);
+			}
+			inputs[i] = c;
+			i++;
 		}
-		inputs[i] = c;
-		i++;
-	}
 	} else {
 		while (i < 6) {
 			inputs[i] = overrides[i];
@@ -87,12 +117,15 @@ void connect_tables(int override)
 		i++;
 	}
 	printf("\n");
+	print_d(connections, 26);
 }
 
 int main()
 {
-	connect_tables(1);
-	char set[4] = "abc";
+	connect_cables(1);
+	//char _d[] = "a";
+
+	/*char set[4] = "abc";
 	printf("Input data: %s\n", set);
 	int i = 0;
 	while (i < 3) {
@@ -105,7 +138,7 @@ int main()
 		set[i] = encrypt(set[i]);
 		i++;
 	}
-	printf("Uncryted data: %s\n", set);
+	printf("Uncryted data: %s\n", set);*/
 
 	return 0;
 }
