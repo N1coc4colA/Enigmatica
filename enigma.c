@@ -2,13 +2,19 @@
 #include <string.h>
 
 
+	/*
+	 * [SECTION] Global defs.
+	 */
+
+#define UNUSED(d) (void)d
+
+//Letters' equivalent, swapped later.
 int connections[26] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25};
 
-/**
- * @brief overrides
- */
+// Used if we won't use user's input.
 const char overrides[6] = "abcdef";
 
+//Different rotors' defs.
 const char rotors[3][26] =
 {
 	"EKMFLGDQVZNTOWYHXUSPAIBRCJ",
@@ -18,12 +24,18 @@ const char rotors[3][26] =
 
 const char reflector[26] = "EJMZALYXVBWFCRQUONTSPIKHGD";
 
+
+	/*
+	 * [SECTION] Helper functions.
+	 */
+
+
 /**
  * @brief Print array of ints.
  * @param t int ptr.
  * @param n size of the array.
  */
-void print_d(int *t, int n)
+void print_array(int *t, int n)
 {
 	int i = 0;
 	while (i < n) {
@@ -33,21 +45,44 @@ void print_d(int *t, int n)
 	printf("\n");
 }
 
+/**
+ * @brief Access value of the connections array.
+ * @param index of the value.
+ * @return value at the index.
+ */
 int pass_through_connections(int v)
 {
 	return connections[v];
 }
 
+/**
+ * @brief Get value for a rotor at a given pos.
+ * @param rotorID, rotor's index.
+ * @param Index of the letter.
+ * @return Output value for the letter.
+ */
 int pass_through_rotor(int rotorID, int v)
 {
 	return rotors[rotorID][v]-'A';
 }
 
+/**
+ * @brief
+ * @param v
+ * @return Output value.
+ */
 int pass_through_reflector(int v)
 {
 	return reflector[v]-'A';
 }
 
+/**
+ * @brief Lookup for a value in an array.
+ * @param v Value to search.
+ * @param t Array.
+ * @param s Array's size.
+ * @return
+ */
 int is_in_table(int v, int *t, int s)
 {
 	int i = 0;
@@ -60,9 +95,15 @@ int is_in_table(int v, int *t, int s)
 	return 0;
 }
 
-int encrypt(int v)
+
+	/*
+	 * [SECTION] Logical functions, main parts.
+	 */
+
+
+char encrypt(int v)
 {
-	v = pass_through_connections(v);
+	v = pass_through_connections(v - 'a');
 
 	int i = 0;
 	while (i < 3) {
@@ -80,9 +121,12 @@ int encrypt(int v)
 	return v + 'a';
 }
 
+/**
+ * @brief Swap values in the connections array.
+ * @param override if you want to ask the user for input or use default one.
+ */
 void connect_cables(int override)
 {
-	print_d(connections, 26);
 	char inputs[6];
 	int i = 0;
 	if (!override) {
@@ -110,22 +154,16 @@ void connect_cables(int override)
 		connections[(int)inputs[i+1] - 'a'] = v;
 		i += 2;
 	}
-	printf("Connections: ");
-	i = 0;
-	while (i < 26) {
-		printf("%d", (char)connections[i]);
-		i++;
-	}
-	printf("\n");
-	print_d(connections, 26);
 }
 
-int main()
+int main(int argc, char **argv)
 {
-	connect_cables(1);
-	//char _d[] = "a";
+	UNUSED(argc);
+	UNUSED(argv);
 
-	/*char set[4] = "abc";
+	connect_cables(1);
+
+	char set[4] = "abc";
 	printf("Input data: %s\n", set);
 	int i = 0;
 	while (i < 3) {
@@ -138,7 +176,7 @@ int main()
 		set[i] = encrypt(set[i]);
 		i++;
 	}
-	printf("Uncryted data: %s\n", set);*/
+	printf("Uncryted data: %s\n", set);
 
 	return 0;
 }
